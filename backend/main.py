@@ -13,17 +13,18 @@ from gtts import gTTS
 from gtts.lang import tts_langs
 
 
-# ------------------------------------------------------------------
-# Config
-# ------------------------------------------------------------------
 BACKEND_BASE = os.getenv("BACKEND_BASE", "https://translator-app-dsn7.onrender.com")
+
 AUDIO_DIR = os.path.join("static", "audio")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
-DetectorFactory.seed = 0  # deterministic detection
+# Deterministic language detection
+DetectorFactory.seed = 0
+
+# TTS supported codes (from gTTS)
 GTTs_SUPPORTED = tts_langs()  # dict: code -> language name
 
-# Indian language codes
+
 INDIAN_LANGUAGES = {
     "hi": "Hindi",
     "bn": "Bengali",
@@ -38,17 +39,17 @@ INDIAN_LANGUAGES = {
     "or": "Odia",
     "as": "Assamese",
     "ne": "Nepali",
+    
 }
 
-# ------------------------------------------------------------------
-# FastAPI app setup
-# ------------------------------------------------------------------
+
 app = FastAPI(title="Translator+TTS")
 
 origins = [
     "https://translator-app-theta-rust.vercel.app",  # Vercel frontend
-    "http://localhost:3000",  # local dev
+    "http://localhost:3000"  # local dev
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,15 +59,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-# ------------------------------------------------------------------
-# Schemas
-# ------------------------------------------------------------------
 class TranslateTTSRequest(BaseModel):
     text: str
-    target_lang: str   # ISO code
+    target_lang: str  
 
 
 class TranslateTTSResponse(BaseModel):
@@ -78,9 +77,6 @@ class TranslateTTSResponse(BaseModel):
     message: Optional[str] = None
 
 
-# ------------------------------------------------------------------
-# Routes
-# ------------------------------------------------------------------
 @app.get("/")
 def root():
     return {"status": "ok"}
@@ -88,7 +84,7 @@ def root():
 
 @app.get("/languages")
 def languages() -> List[Dict[str, Any]]:
-    """Return Indian languages with TTS support info."""
+    """Return major Indian languages + whether TTS is supported for each."""
     out = []
     for code, name in INDIAN_LANGUAGES.items():
         out.append(
@@ -111,19 +107,19 @@ def translate_tts(req: TranslateTTSRequest):
     if target not in INDIAN_LANGUAGES:
         raise HTTPException(status_code=400, detail=f"Unsupported target language: {target}")
 
-    # Detect source language
+    
     try:
-        detected = detect(text)
+        detected = detect(text)  # ISO-639-1 codes mostly
     except Exception:
         detected = "auto"
 
-    # Translate
+    # Translate (Google)
     try:
         translated = GoogleTranslator(source="auto", target=target).translate(text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Translation failed: {e}")
 
-    # TTS
+    # TTS (only if supported)
     audio_url = None
     msg = None
     tts_ok = target in GTTs_SUPPORTED
