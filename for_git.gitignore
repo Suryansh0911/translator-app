@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+build/
+dist/
+.env
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp

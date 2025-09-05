@@ -1,0 +1,10 @@
+fastapi==0.103.1
+uvicorn[standard]==0.23.1
+transformers
+torch==2.8.0
+TTS==0.10.0
+numpy
+pydantic==2.6.1
+python-multipart==0.0.6
+requests==2.31.0
+deep-translator
