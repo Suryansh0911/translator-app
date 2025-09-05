@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-const BACKEND = "http://127.0.0.1:8000";
+const BACKEND = "https://translator-app-dsn7.onrender.com";
 
 export default function App() {
   const [text, setText] = useState("");
