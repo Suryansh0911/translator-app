@@ -47,7 +47,8 @@ app = FastAPI(title="Translator+TTS")
 
 origins = [
     "https://translator-app-theta-rust.vercel.app",  # Vercel frontend
-    "http://localhost:3000"  # local dev
+    "http://localhost:3000",  # local dev
+    "https://translator-26tjtyay5-suryansh0911s-projects.vercel.app"
 ]
 
 
